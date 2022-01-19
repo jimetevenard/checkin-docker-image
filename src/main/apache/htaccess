@@ -1,0 +1,8 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Rewrite de tous les paths vers l'index (URLs Angular, comme "/liste")
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule "^(.*)$" "./index.html" [NC,L]
