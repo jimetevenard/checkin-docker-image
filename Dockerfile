@@ -21,4 +21,10 @@ RUN rm /var/www/html && \
     unzip checkin-1.2.1_dist.zip && \
     mv dist/** /var/www/html
 
-COPY src/main/apache/htaccess /app/.htaccess
+COPY src/main/apache/htaccess /var/www/html/.htaccess
+
+RUN git clone https://github.com/jimetevenard/checkin-back-php.git && \
+    mkdir /var/www/html/back && \
+    mv checkin-back-php/** /var/www/html/back
+
+COPY src/main/resources/config.json /var/www/html/config.json
