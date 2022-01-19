@@ -5,26 +5,41 @@ FROM mattrayner/lamp:latest
 # - /var/www/html est un lien symbolique vers un VOLUME
 # - mysql n'est pas utilisé ici...
 #
-# Trouver (ou crééer) une image de base plus light avec juste PHP.
+# Trouver (ou crééer) une image de base plus light, avec juste PHP + Apache (ou nginx).
 
 
-# Un conf qui marche à peu près
+
+# Une conf qui marche à peu près
+# =============================
 COPY src/main/apache/apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Download frontend (Création assumée d'un layer)
+
+
+# Téléchargement du frontend (Création assumée d'un layer)
+# ========================================================
 RUN wget https://github.com/jimetevenard/checkin-angular/releases/download/v1.2.1/checkin-1.2.1_dist.zip
 
-# Make /var/www/html a "real" directory (and not a simlink to /app wich is a volume)
-# and install front-end there
-RUN rm /var/www/html && \
-    mkdir /var/www/html && \
-    unzip checkin-1.2.1_dist.zip && \
+
+# Transformation de "/var/www/html" en un "vrai" répertoire
+# (et non un symlink vers /app/ qui est déclaré en volume dans le Dockerfile d'origine)
+RUN rm /var/www/html && mkdir /var/www/html
+
+
+# Installation du front-end
+# =========================
+RUN unzip checkin-1.2.1_dist.zip && \
     mv dist/** /var/www/html
 
+# Ce .htacess contient (entre autres) le rewrite pour l'app angular
 COPY src/main/apache/htaccess /var/www/html/.htaccess
 
+
+# Installation du back-end
+# ========================
 RUN git clone https://github.com/jimetevenard/checkin-back-php.git && \
     mkdir /var/www/html/back && \
     mv checkin-back-php/** /var/www/html/back
 
+# Copie de la config applicative
+# ==============================
 COPY src/main/resources/config.json /var/www/html/config.json
